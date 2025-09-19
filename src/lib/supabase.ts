@@ -1,11 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Replace these with your actual Supabase project credentials
-const supabaseUrl = 'https://shyfhwipqiwtyatficww.supabase.co'  // e.g., 'https://your-project.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoeWZod2lwcWl3dHlhdGZpY3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyODY5NzksImV4cCI6MjA3Mzg2Mjk3OX0.hxjf8waqPAbjLuDgH9z867XUxxqlrxHtA5FTfbEL7i4'  // Your project's anon/public key
+// Use Vite environment variables (for Netlify and local)
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export type Database = {
   public: {
     Tables: {
