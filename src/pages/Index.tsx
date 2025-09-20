@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, CalendarDays, StickyNote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/Calendar';
@@ -11,7 +11,7 @@ import { categories } from '../lib/database';
 import { cn } from '@/lib/utils';
 
 import { NoteSidebar } from '@/components/NoteSidebar';
-import { notes} from '@/lib/database'; // Use your real data source
+import { NoteViewModal } from '@/components/NoteViewModal';
 
 const Index = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -22,6 +22,8 @@ const Index = () => {
   const [editorNote, setEditorNote] = useState<Note | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [defaultEditorDate, setDefaultEditorDate] = useState<string | undefined>();
+  const [viewNote, setViewNote] = useState<Note | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
 
   // Fetch notes from Supabase on mount and when search/category/date changes
   useEffect(() => {
@@ -58,13 +60,14 @@ const Index = () => {
 
   const handleNoteCreate = (date?: string) => {
     setEditorNote(null);
-    setDefaultEditorDate(date);
+    // Use the provided date, or the currently selected date, or today
+    setDefaultEditorDate(date || selectedDate || new Date().toISOString().split('T')[0]);
     setIsEditorOpen(true);
   };
 
   const handleNoteEdit = (note: Note) => {
     setEditorNote(note);
-    setDefaultEditorDate(undefined);
+    setDefaultEditorDate(note.date);
     setIsEditorOpen(true);
   };
 
@@ -105,6 +108,11 @@ const Index = () => {
     }
     setIsEditorOpen(false);
     setLoading(false);
+  };
+
+  const handleNoteView = (note: Note) => {
+    setViewNote(note);
+    setIsViewOpen(true);
   };
 
   const formatSelectedDate = (dateString: string) => {
@@ -163,9 +171,9 @@ const Index = () => {
           <div className="lg:col-span-6">
             <Calendar
               selectedDate={selectedDate}
-              onDateSelect={handleDateSelect}
-              onNoteCreate={handleNoteCreate}
-              notes={notes} // <-- Pass notes here
+              onDateSelect={setSelectedDate}
+              onNoteCreate={handleNoteCreate} // Calendar should call handleNoteCreate(date)
+              notes={notes}
             />
           </div>
 
@@ -207,6 +215,7 @@ const Index = () => {
                       onEdit={handleNoteEdit}
                       onDelete={handleNoteDelete}
                       onPin={handleNotePin}
+                      onView={handleNoteView} // <-- pass this
                       compact={true}
                     />
                   ))
@@ -245,6 +254,13 @@ const Index = () => {
         onClose={() => setIsEditorOpen(false)}
         onSave={handleNoteSave}
         defaultDate={defaultEditorDate}
+      />
+
+      {/* Note View Modal */}
+      <NoteViewModal
+        note={viewNote}
+        isOpen={isViewOpen}
+        onClose={() => setIsViewOpen(false)}
       />
     </div>
   );

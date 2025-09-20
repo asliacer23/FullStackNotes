@@ -25,10 +25,11 @@ interface NoteCardProps {
   onEdit: (note: Note) => void;
   onDelete: (noteId: string) => void;
   onPin: (noteId: string) => void;
+  onView?: (note: Note) => void; // <-- add this
   compact?: boolean;
 }
 
-export const NoteCard = ({ note, onEdit, onDelete, onPin, compact = false }: NoteCardProps) => {
+export const NoteCard = ({ note, onEdit, onDelete, onPin, onView, compact = false }: NoteCardProps) => {
   const category = categories.find(cat => cat.id === note.category);
 
   const getContentPreview = (content: string, maxLength: number = 120) => {
@@ -60,10 +61,13 @@ export const NoteCard = ({ note, onEdit, onDelete, onPin, compact = false }: Not
   const totalTasks = (note as any).checklist?.length || 0;
 
   return (
-    <Card className={cn(
-      "p-4 hover:shadow-medium transition-all duration-200 cursor-pointer group",
-      compact ? "p-3" : "p-4"
-    )}>
+    <Card
+      className={cn(
+        "p-4 hover:shadow-medium transition-all duration-200 cursor-pointer group",
+        compact ? "p-3" : "p-4"
+      )}
+      onClick={() => onView && onView(note)} // <-- add this
+    >
       <div className="flex items-start gap-3">
         {/* Category Indicator */}
         <div className="flex-shrink-0 mt-1">
